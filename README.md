@@ -34,7 +34,7 @@ A conversational AI chatbot powered by **Groq's ultra-fast LPU inference** and *
 
 ## Project Structure
 
-```
+```text
 groq-chatbot/
 ├── app.py            # Streamlit UI — chat interface, sidebar, session state
 ├── chatbot.py        # LangChain logic — LLM init, memory, chain
@@ -69,7 +69,7 @@ pip install -r requirements.txt
 
 Create a `.env` file in the project root:
 
-```
+```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
@@ -86,10 +86,10 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser.
 ## How It Works
 
 1. The user sends a message via the Streamlit chat input.
-2. `ConversationChain` prepends the full session history from `ConversationBufferMemory` to maintain context.
-3. `ChatGroq` sends the enriched prompt to the selected model via the Groq API.
-4. The response is displayed in the chat window and saved to session memory.
-5. Switching models reinitializes the chain while keeping the displayed history intact.
+2. `get_history()` converts the session message list into `HumanMessage` / `AIMessage` objects.
+3. A `ChatPromptTemplate` (system prompt + history + user input) is built using LangChain LCEL.
+4. `ChatGroq` streams the response token-by-token to Streamlit via `st.write_stream`.
+5. The response is appended to session state — the chain is stateless, so model/prompt switches are instant and never lose history.
 
 ---
 
@@ -106,8 +106,8 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ## Roadmap
 
-- [ ] Streaming token output
-- [ ] Customizable system prompt via sidebar
+- [x] Streaming token output
+- [x] Customizable system prompt via sidebar
 - [ ] Export chat history to `.txt` / `.json`
 - [ ] RAG integration for document-aware Q&A
 - [ ] Docker support for deployment
